@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: "8.2"
+            illuminate: "^11.0"
+            testbench: "^9.0"
+          - php: "8.3"
+            illuminate: "^12.0"
+            testbench: "^10.0"
+          - php: "8.4"
+            illuminate: "^13.0"
+            testbench: "^11.0"
+          - php: "8.5"
+            illuminate: "^13.0"
+            testbench: "^11.0"
+    name: PHP ${{ matrix.php }} / Laravel ${{ matrix.illuminate }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Install and test
+        run: |
+          composer require --no-update \
+            "illuminate/support:${{ matrix.illuminate }}" \
+            "orchestra/testbench:${{ matrix.testbench }}"
+          composer update --no-interaction --prefer-dist
+          vendor/bin/phpunit
