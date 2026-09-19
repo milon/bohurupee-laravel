@@ -15,8 +15,8 @@ jobs:
       matrix:
         include:
           - php: "8.2"
-            illuminate: "^11.0"
-            testbench: "^9.0"
+            illuminate: "^12.0"
+            testbench: "^10.0"
           - php: "8.3"
             illuminate: "^12.0"
             testbench: "^10.0"
@@ -37,8 +37,7 @@ jobs:
 
       - name: Install and test
         run: |
-          composer require --no-update \
-            "illuminate/support:${{ matrix.illuminate }}" \
-            "orchestra/testbench:${{ matrix.testbench }}"
+          composer require --no-update "illuminate/support:${{ matrix.illuminate }}"
+          composer require --dev --no-update "orchestra/testbench:${{ matrix.testbench }}"
           composer update --no-interaction --prefer-dist
           vendor/bin/phpunit

@@ -6,9 +6,7 @@ talks to a local Bohurupee process instead of Google, GitHub, or any other
 remote IdP.
 
 This package is **dev-only**. It refuses to boot when `APP_ENV=production`.
-It supports Laravel 11, 12, and 13.
-It supports Laravel 11, 12, and 13.
-It supports Laravel 11, 12, and 13.
+It supports Laravel 12 and 13 on PHP 8.2 or newer.
 
 ## Install
 
