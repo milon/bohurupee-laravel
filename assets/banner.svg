@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="280" viewBox="0 0 1200 280" role="img" aria-label="Bohurupee for Laravel">
+  <title>Bohurupee for Laravel</title>
+  <rect width="1200" height="280" fill="#f6f1ea"/>
+  <rect width="300" height="280" fill="#b45309"/>
+  <svg x="70" y="60" width="160" height="160" viewBox="0 0 64 64" fill="none" stroke="#fffdfb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <g transform="translate(3 0)">
+      <path d="M9 43C8 35 10 31 12 33C13 34 14 34.5 15 35C20 33 25 33 29 34C34 30 37 22 35 13C34 9 32 6 30 4.5C40 9 48 19 49 31C49.5 34 49.5 36 49 38.5C49 46 46 52 41 55C36 58 29 58 23 56C16 54 10 51 9 45Z"/>
+      <path d="M13 44C17 40 23 41 26 46C21 49 15 48 13 44Z"/>
+      <path d="M45 44C41 40 35 41 32 46C37 49 43 48 45 44Z"/>
+    </g>
+  </svg>
+  <g font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+    <text x="364" y="92" fill="#b45309" font-size="12" font-weight="700" letter-spacing="1.6">DEV ONLY</text>
+    <text x="364" y="146" fill="#1c1917" font-size="48" font-weight="700" letter-spacing="-1.2">Bohurupee</text>
+    <text x="364" y="184" fill="#57534e" font-size="18">Point Socialite at a local identity provider.</text>
+    <text x="364" y="222" fill="#9a3412" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">composer require milon/bohurupee-laravel --dev</text>
+  </g>
+</svg>

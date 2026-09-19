@@ -1,4 +1,4 @@
-<img src="assets/logo.svg" alt="" width="88" align="right">
+<img src="assets/banner.svg" alt="Bohurupee for Laravel" width="100%">
 
 # milon/bohurupee-laravel
 
