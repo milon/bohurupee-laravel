@@ -3,7 +3,18 @@
   "description": "Optional Laravel Socialite adapter for the Bohurupee local identity provider",
   "license": "MIT",
   "type": "library",
-  "keywords": ["laravel", "socialite", "oauth", "oidc", "local"],
+  "keywords": ["laravel", "socialite", "oauth", "oidc", "local", "development"],
+  "homepage": "https://github.com/milon/bohurupee-laravel",
+  "authors": [
+    {
+      "name": "milon",
+      "homepage": "https://github.com/milon"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/milon/bohurupee-laravel/issues",
+    "source": "https://github.com/milon/bohurupee-laravel"
+  },
   "require": {
     "php": "^8.2",
     "illuminate/support": "^12.0 || ^13.0",
@@ -29,6 +40,9 @@
         "Milon\\Bohurupee\\BohurupeeServiceProvider"
       ]
     }
+  },
+  "scripts": {
+    "test": "phpunit"
   },
   "minimum-stability": "stable",
   "prefer-stable": true
