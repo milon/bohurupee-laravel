@@ -3,12 +3,16 @@
 # milon/bohurupee-laravel
 
 [![CI](https://github.com/milon/bohurupee-laravel/actions/workflows/ci.yml/badge.svg)](https://github.com/milon/bohurupee-laravel/actions/workflows/ci.yml)
+[![Latest Version](https://img.shields.io/packagist/v/milon/bohurupee-laravel.svg?include_prereleases)](https://packagist.org/packages/milon/bohurupee-laravel)
+[![Total Downloads](https://img.shields.io/packagist/dt/milon/bohurupee-laravel.svg)](https://packagist.org/packages/milon/bohurupee-laravel)
 [![License](https://img.shields.io/github/license/milon/bohurupee-laravel)](LICENSE)
 
 Optional [Laravel Socialite](https://laravel.com/docs/socialite) adapter for
 [Bohurupee](https://github.com/milon/bohurupee). When enabled, `Socialite::driver()`
 talks to a local Bohurupee process instead of Google, GitHub, or any other
 remote IdP.
+
+**[Packagist](https://packagist.org/packages/milon/bohurupee-laravel)** · [GitHub](https://github.com/milon/bohurupee-laravel) · [Bohurupee](https://github.com/milon/bohurupee)
 
 This package is **dev-only**. It refuses to boot when `APP_ENV=production`.
 
@@ -126,19 +130,4 @@ composer test
 
 CI runs PHP 8.2–8.5 against Laravel 12 and 13. Tests mock HTTP, so they
 never call a real provider.
-
-From a sibling checkout, before the package is on Packagist:
-
-```json
-{
-  "require-dev": {
-    "milon/bohurupee-laravel": "@dev"
-  },
-  "repositories": [
-    {
-      "type": "path",
-      "url": "../bohurupee-laravel"
-    }
-  ]
-}
 ```
