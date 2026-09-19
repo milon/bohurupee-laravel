@@ -1,3 +1,5 @@
+<img src="assets/logo.svg" alt="" width="88" align="right">
+
 # milon/bohurupee-laravel
 
 Optional [Laravel Socialite](https://laravel.com/docs/socialite) adapter for

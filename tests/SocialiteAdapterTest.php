@@ -73,6 +73,24 @@ class SocialiteAdapterTest extends TestCase
         $this->assertStringContainsString('scope=openid+profile+email', $target);
     }
 
+    public function test_relative_redirect_follows_the_request_host(): void
+    {
+        $this->app['config']->set('services.google.redirect', '/auth/google/callback');
+
+        foreach (['http://localhost:8000', 'http://127.0.0.1:8000'] as $root) {
+            $this->app['url']->forceRootUrl($root);
+            $this->app->forgetInstance(Factory::class);
+            Socialite::clearResolvedInstances();
+
+            $target = Socialite::driver('google')->stateless()->redirect()->getTargetUrl();
+
+            $this->assertStringContainsString(
+                'redirect_uri='.urlencode($root.'/auth/google/callback'),
+                $target
+            );
+        }
+    }
+
     public function test_user_mapping_and_set_raw_from_userinfo(): void
     {
         $history = [];

@@ -66,9 +66,22 @@ class BohurupeeFactory implements Factory
             $request,
             $config['client_id'] ?? 'bohurupee-'.$driver,
             $config['client_secret'] ?? 'bohurupee',
-            $config['redirect'] ?? $this->app['url']->to('/auth/'.$driver.'/callback'),
+            $this->formatRedirectUrl($config['redirect'] ?? null, $driver),
             $driver,
             rtrim((string) $this->app['config']->get('bohurupee.url', 'http://127.0.0.1:4190'), '/'),
         );
+    }
+
+    /**
+     * Resolve a relative callback against the current request, as Socialite does,
+     * so the session cookie set at redirect time is still sent on the callback.
+     */
+    private function formatRedirectUrl(mixed $redirect, string $driver): string
+    {
+        $redirect = value($redirect) ?: '/auth/'.$driver.'/callback';
+
+        return str_starts_with($redirect, '/')
+            ? $this->app['url']->to($redirect)
+            : $redirect;
     }
 }
