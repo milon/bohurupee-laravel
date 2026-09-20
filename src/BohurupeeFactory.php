@@ -69,6 +69,7 @@ class BohurupeeFactory implements Factory
             $this->formatRedirectUrl($config['redirect'] ?? null, $driver),
             $driver,
             rtrim((string) $this->app['config']->get('bohurupee.url', 'http://127.0.0.1:4190'), '/'),
+            rtrim((string) $this->app['config']->get('bohurupee.public_url', 'http://127.0.0.1:4190'), '/'),
         );
     }
 

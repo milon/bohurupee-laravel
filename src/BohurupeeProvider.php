@@ -23,6 +23,7 @@ class BohurupeeProvider extends AbstractProvider
         $redirectUrl,
         protected string $slug,
         protected string $baseUrl,
+        protected string $publicUrl,
         $guzzle = [],
     ) {
         parent::__construct($request, $clientId, $clientSecret, $redirectUrl, $guzzle);
@@ -38,14 +39,35 @@ class BohurupeeProvider extends AbstractProvider
         return $this->baseUrl;
     }
 
+    public function getPublicUrl(): string
+    {
+        return $this->publicUrl;
+    }
+
     protected function getAuthUrl($state): string
     {
-        return $this->buildAuthUrlFromBase($this->endpoint('authorize'), $state);
+        return $this->buildAuthUrlFromBase($this->publicEndpoint('authorize'), $state);
     }
 
     protected function getTokenUrl(): string
     {
         return $this->endpoint('token');
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * Bohurupee (and any OIDC IdP) may redirect back with error=access_denied
+     * when the user clicks Deny. Surface that as OAuthErrorException instead of
+     * letting Socialite fail on a missing code.
+     */
+    public function user()
+    {
+        if ($this->request->filled('error')) {
+            throw OAuthErrorException::fromRequest($this->request, $this->slug);
+        }
+
+        return parent::user();
     }
 
     /**
@@ -75,5 +97,10 @@ class BohurupeeProvider extends AbstractProvider
     private function endpoint(string $path): string
     {
         return $this->baseUrl.'/'.$this->slug.'/'.$path;
+    }
+
+    private function publicEndpoint(string $path): string
+    {
+        return $this->publicUrl.'/'.$this->slug.'/'.$path;
     }
 }

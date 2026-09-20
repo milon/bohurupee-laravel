@@ -59,15 +59,49 @@ php artisan vendor:publish --tag=bohurupee-config
 | Variable | Default | Meaning |
 |----------|---------|---------|
 | `BOHURUPEE_ENABLED` | `false` | Wrap Socialite when `true` |
-| `BOHURUPEE_URL` | `http://127.0.0.1:4190` | Bohurupee origin |
+| `BOHURUPEE_URL` | `http://127.0.0.1:4190` | Server-side origin (token + userinfo) |
+| `BOHURUPEE_PUBLIC_URL` | same as `BOHURUPEE_URL` | Browser authorize redirect (set when the app is in Docker) |
 | `BOHURUPEE_DRIVERS` | empty | Comma-separated names to wrap. Empty wraps every `Socialite::driver($name)`, including custom slugs |
 | `BOHURUPEE_EXCEPT` | empty | Names that stay on the real provider |
+| `BOHURUPEE_ERROR_REDIRECT` | `/login` (see below) | HTML redirect after Deny / OAuth `error=` |
 
 ```env
 BOHURUPEE_ENABLED=true
 BOHURUPEE_URL=http://127.0.0.1:4190
+# BOHURUPEE_PUBLIC_URL=http://127.0.0.1:14190
 # BOHURUPEE_DRIVERS=google,github
 # BOHURUPEE_EXCEPT=apple
+# BOHURUPEE_ERROR_REDIRECT=/login
+```
+
+When Laravel runs in Docker Compose and Bohurupee is a sibling service, point
+`BOHURUPEE_URL` at the internal hostname (`http://bohurupee:4190`) and
+`BOHURUPEE_PUBLIC_URL` at the published host port the browser can open.
+
+## Deny / OAuth errors
+
+When the user clicks **Deny** (or Bohurupee returns another `error=` on the
+callback), `Socialite::driver(...)->user()` throws
+`Milon\Bohurupee\OAuthErrorException` instead of failing on a missing code.
+
+The exception renders itself:
+
+- **JSON** (`Accept: application/json` / `expectsJson`): `400` with
+  `error`, `error_description`, `state`, `provider`
+- **HTML**: redirect to `BOHURUPEE_ERROR_REDIRECT`, or
+  `filament.admin.auth.login` / `login` / `/login`, with flash keys
+  `bohurupee_oauth_error`, `filament-socialite-login-error`, and `error`
+
+Apps can also catch the exception:
+
+```php
+use Milon\Bohurupee\OAuthErrorException;
+
+try {
+    $user = Socialite::driver($provider)->user();
+} catch (OAuthErrorException $e) {
+    return response()->json($e->toArray(), 400);
+}
 ```
 
 ## Usage

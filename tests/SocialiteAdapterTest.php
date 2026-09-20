@@ -7,6 +7,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use Illuminate\Http\Request;
 use Laravel\Socialite\Contracts\Factory;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\SocialiteServiceProvider;
@@ -14,6 +15,7 @@ use Laravel\Socialite\Two\GithubProvider;
 use Milon\Bohurupee\BohurupeeFactory;
 use Milon\Bohurupee\BohurupeeProvider;
 use Milon\Bohurupee\BohurupeeServiceProvider;
+use Milon\Bohurupee\OAuthErrorException;
 use Milon\Bohurupee\ProductionForbiddenException;
 use Milon\Bohurupee\UserMapper;
 use Orchestra\Testbench\TestCase;
@@ -41,6 +43,7 @@ class SocialiteAdapterTest extends TestCase
         $app['config']->set('app.env', 'testing');
         $app['config']->set('bohurupee.enabled', $this->enableBohurupee);
         $app['config']->set('bohurupee.url', 'http://127.0.0.1:4190');
+        $app['config']->set('bohurupee.public_url', 'http://127.0.0.1:4190');
         $app['config']->set('bohurupee.drivers', []);
         $app['config']->set('bohurupee.except', []);
         $app['config']->set('services.google', [
@@ -71,6 +74,22 @@ class SocialiteAdapterTest extends TestCase
         $this->assertStringNotContainsString('accounts.google.com', $target);
         $this->assertStringContainsString('client_id=bohurupee-google', $target);
         $this->assertStringContainsString('scope=openid+profile+email', $target);
+    }
+
+    public function test_public_url_used_for_authorize_only(): void
+    {
+        $this->app['config']->set('bohurupee.url', 'http://bohurupee:4190');
+        $this->app['config']->set('bohurupee.public_url', 'http://127.0.0.1:14190');
+        $this->app->forgetInstance(Factory::class);
+        Socialite::clearResolvedInstances();
+
+        $provider = Socialite::driver('google');
+        $this->assertInstanceOf(BohurupeeProvider::class, $provider);
+        $this->assertSame('http://bohurupee:4190', $provider->getBaseUrl());
+        $this->assertSame('http://127.0.0.1:14190', $provider->getPublicUrl());
+
+        $target = $provider->stateless()->redirect()->getTargetUrl();
+        $this->assertStringStartsWith('http://127.0.0.1:14190/google/authorize?', $target);
     }
 
     public function test_relative_redirect_follows_the_request_host(): void
@@ -178,6 +197,66 @@ class SocialiteAdapterTest extends TestCase
         $this->assertSame('octocat', $github->getNickname());
         $this->assertSame('https://avatars.github.test/u/1', $github->getAvatar());
         $this->assertSame('42', $github->getId());
+    }
+
+    public function test_deny_throws_oauth_error_exception(): void
+    {
+        $this->app['request']->merge([
+            'error' => 'access_denied',
+            'error_description' => 'the user denied the request',
+            'state' => 'abc',
+        ]);
+
+        try {
+            Socialite::driver('google')->stateless()->user();
+            $this->fail('expected OAuthErrorException');
+        } catch (OAuthErrorException $e) {
+            $this->assertSame('access_denied', $e->error);
+            $this->assertSame('the user denied the request', $e->errorDescription);
+            $this->assertSame('abc', $e->state);
+            $this->assertSame('google', $e->provider);
+            $this->assertSame([
+                'provider' => 'google',
+                'error' => 'access_denied',
+                'error_description' => 'the user denied the request',
+                'state' => 'abc',
+            ], $e->toArray());
+        }
+    }
+
+    public function test_deny_renders_json_when_requested(): void
+    {
+        $exception = new OAuthErrorException('access_denied', 'the user denied the request', 'st', 'jumpcloud');
+        $request = Request::create('/oauth/callback/jumpcloud', 'GET', [], [], [], [
+            'HTTP_ACCEPT' => 'application/json',
+        ]);
+
+        $response = $exception->render($request);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame([
+            'provider' => 'jumpcloud',
+            'error' => 'access_denied',
+            'error_description' => 'the user denied the request',
+            'state' => 'st',
+        ], $response->getData(true));
+    }
+
+    public function test_deny_renders_redirect_for_html(): void
+    {
+        $this->app['config']->set('bohurupee.error_redirect', '/login');
+        $exception = new OAuthErrorException('access_denied', 'the user denied the request');
+        $request = Request::create('/oauth/callback/jumpcloud', 'GET', [], [], [], [
+            'HTTP_ACCEPT' => 'text/html',
+        ]);
+        $request->setLaravelSession($this->app['session']->driver());
+
+        $response = $exception->render($request);
+
+        $this->assertTrue($response->isRedirect());
+        $this->assertSame(url('/login'), $response->getTargetUrl());
+        $this->assertSame('access_denied', $request->session()->get('bohurupee_oauth_error'));
+        $this->assertSame('the user denied the request', $request->session()->get('filament-socialite-login-error'));
     }
 
     public function test_production_refuses_to_boot(): void
