@@ -148,6 +148,8 @@ Mapped fields, first match wins:
 `$user->getRaw()` is the full userinfo JSON. Provider-shaped payloads are
 documented in the Bohurupee repo at
 [`docs/socialite.md`](https://github.com/milon/bohurupee/blob/master/docs/socialite.md).
+How the adapter wraps Socialite (factory, URLs, mapping) is
+[How the Laravel adapter works](https://milon.github.io/bohurupee/socialite-internals/).
 
 ## Production
 
